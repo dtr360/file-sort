@@ -9,6 +9,9 @@
 
 #include "sortroutines.cpp"
 #include <string>
+#include <unistd.h> // for getcwd function
+
+
 //#include <iostream> do not include this else link errors
 
 using namespace std;
