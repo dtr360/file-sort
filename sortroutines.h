@@ -43,7 +43,7 @@ const char cNoMemory[]		= "Error #%s insufficient memory for array.\n";
 
 //typedef wchar_t DataLineType[BUFFER_SZ+1]; // a line of data read from input file.
 
-typedef struct // holds line of data and its sort key
+typedef struct // holds line of data and its sort keys
 {
     wstring         key1;
     wstring         key2;
@@ -54,7 +54,7 @@ typedef struct // holds line of data and its sort key
 
 typedef struct 
 {
-	FILE*		fp;		// file pointer to a temporary sort file
+	FILE*		fp;         // file pointer to a temporary sort file
 	char		name[FNAME_SZ];	// sort file name (eg _sort001.dat)
 	BufRecType	rec;		// line records
 	bool		eof;		// end of file flag
