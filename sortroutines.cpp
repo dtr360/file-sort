@@ -30,7 +30,7 @@
  * until the input file has been fully read.This program uses a
  * polyphase mergesort to sort a text file.
  * 
- * @version 1.0
+ * @version 1.1
  * @date 2015-12-22
  * @copyright Copyright (c) 2015
  * 
@@ -838,28 +838,6 @@ bool SortRoutines::MergeSort(void)
     return true;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// FUNCTION:	MakeRuns
-//
-// DESCRIPTION:	Make runs using replacement selection:
-//				Read up to MAX_ARR_SZ lines of a text file into a buffer
-//				array, where each element of the array consists of the text
-//				string and an integer key that is copied from the text
-//				string; (3) sort the array by the key;	(4) find the lowest
-//				key in the buffer that is greater than the last key read,
-//				and copy the text string associated with that key from the
-//				buffer to a temporary sort file; (5) read in	one new line
-//				of text into the buffer and resort the buffer; (7) repeat
-//				from step 3 until	there are no more keys left that are
-//				greater than the last key read; (8) repeat from step 2 until
-//				he last sort file has been filled.
-//
-// PARAMETERS:	-> fileNo -	determines which key to used, depending on the file
-//							being sorted.
-//
-// RETURNS:		TRUE if successful, else FALSE if error.
-////////////////////////////////////////////////////////////////////////////////
-
 /**
  * @brief Make runs using replacement selection: Read up to MAX_ARR_SZ lines
  * of a text file into a buffer array, where each element of the array 
@@ -872,7 +850,7 @@ bool SortRoutines::MergeSort(void)
  * than the last key read; (8) repeat from step 2 until he last sort file
  * has been filled.
  * 
- * @return true if functin was successful, else false if an error occurred.
+ * @return true if successful, else false if an error occurred.
  */
 bool SortRoutines::MakeRuns(void)
 {
