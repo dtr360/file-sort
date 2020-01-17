@@ -251,12 +251,12 @@ void SortRoutines::DeallocateSrtFlArr(int srtFlArrSz)
 void SortRoutines::FileIOError(string msg)
 {
     printf("%s", msg.c_str());
+
     if ((m_LogFileP = fopen (LOGFILE, "a")) != NULL)
     {
         fprintf(m_LogFileP, "%s\n", msg.c_str());
         fclose(m_LogFileP);
     }
-    AddLogEntry(msg);
 }
 
 /**
@@ -435,7 +435,6 @@ bool SortRoutines::RewindF(const int pos)
  */
 int SortRoutines::RecCmp(BufRecType *rec1, BufRecType *rec2)
 {
-
     int result = 0;
 
     result = wcscmp(rec1->key1.c_str(), rec2->key1.c_str());
