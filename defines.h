@@ -1,22 +1,22 @@
-//
-//  defines.h
-//  Sorter
-//
-//  Created by Daniel Rencricca on 12/22/15.
-//  Copyright © 2015 Daniel Rencricca. All rights reserved.
-//
-//  Description
-//  Header file containing defined values used by various modules.
-//
+/**
+ * @file defines.h
+ * @author Daniel Rencricca
+ * @brief  Header file containing defined values used by various modules for
+ * the sorter.
+ * @version 1.1
+ * @date 2015-12-22
+ * 
+ * @copyright Copyright (c) 2015
+ * 
+ */
 
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
+#define _DEBUG 1
 
-#define _DEBUG
-
-#define LOGFILE			_T("logfile.txt")		// log file
-#define ERR_LOG_FILE	_T("errlog.txt")		// error log file
+#define LOGFILE			  "logfile.txt"	// log file
+#define ERR_LOG_FILE	"errlog.txt"	// error log file
 
 #define	MAX_LOGFILE_SZ	131072
 
@@ -35,4 +35,12 @@
 #define	cUnkErr						0x03
 #define	cReadErr					0x04
 
+#define DBGVAR( var ) \
+  (cout) << __TIME__ << " DEBUG: " << __FILE__ << "(" << __LINE__ << ") "\
+       << #var << " = [" << (var) << "]" << std::endl
+
+#define DBGPRINT(fmt, ...) \
+    do { if (_DEBUG) fprintf(stderr, __TIME__ " DEBUG: " fmt "\n", __VA_ARGS__); } while (0)
+
 #endif // _DEFINES_H_
+
