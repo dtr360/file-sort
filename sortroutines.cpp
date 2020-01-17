@@ -37,6 +37,7 @@
  */
 
 #include <iostream>
+#include <stdio.h>
 #include <string>
 #include <assert.h>
 
@@ -78,10 +79,11 @@ SortRoutines::SortRoutines(string inFile, string outFile, uint col1, uint col2,
     m_sUserFile = inFile;
     m_bUsingQuotes = false;
     m_sOutfile = outFile;
-    m_bSkipFirstLn = true; // FIX THIS
+    m_bSkipFirstLn = true;
     m_iSortCol1 = col1;
     m_iSortCol2 = col2;
     m_iSortCol3 = col3;
+    m_LogFileP = NULL;
 
     // make space on heap for m_aBufArr and m_aSrtFlArr arrays
     AllocateBufArr(BUF_ARR_SZ);
@@ -94,14 +96,6 @@ SortRoutines::SortRoutines(string inFile, string outFile, uint col1, uint col2,
     // remove the file in case prior failed processing
     remove(m_sHoldFile.c_str());
 }
-
-// void debugPrintMe(const T& myvar)
-// {
-//     if (_DEBUG)
-//     {
-//         std::cout << myvar << std::endl;
-//     }
-// }
 
 /**
  * @brief Destroy the Sort Routines:: Sort Routines object
@@ -131,6 +125,8 @@ SortRoutines::~SortRoutines()
  *  attempt.
  * 
  * @param maxSz The size of array we want to allocate.
+ * 
+ * @return Void.
  */
 void SortRoutines::AllocateBufArr(int maxSz)
 {
@@ -163,6 +159,8 @@ void SortRoutines::AllocateBufArr(int maxSz)
  *  attempt.
  * 
  * @param maxSz The size of array we want to allocate.
+ * 
+ * @return Void.
  */
 void SortRoutines::AllocateSrtFlArr(int maxSz)
 {
@@ -193,6 +191,7 @@ void SortRoutines::AllocateSrtFlArr(int maxSz)
  * @brief Deletes the m_aBufArr array.
  * 
  * @param bufArrSz The number of elements in Buffer array.
+ * 
  * @return Void.
  */
 void SortRoutines::DeallocateBufArr(uint bufArrSz)
@@ -216,6 +215,7 @@ void SortRoutines::DeallocateBufArr(uint bufArrSz)
  * @brief Deletes the m_aSrtFlArr array.
  * 
  * @param srtFlArrSz number of items in m_aSrtFlArr array.
+ * 
  * @return Void.
  */
 void SortRoutines::DeallocateSrtFlArr(int srtFlArrSz)
@@ -245,14 +245,36 @@ void SortRoutines::DeallocateSrtFlArr(int srtFlArrSz)
  * TRUE and erases all files created.
  * 
  * @param msg Error message to display and write to log file.
+ * 
  * @return Void.
  */
 void SortRoutines::FileIOError(string msg)
 {
-    cout << msg.c_str();
-    //wxMessageBox(msg, _THIS_FILE, wxOK | wxICON_ERROR);
-    //AddLogEntry(msg);
-    //pGedWiseFrame->SetBadExit();
+    printf("%s", msg.c_str());
+    if ((m_LogFileP = fopen (LOGFILE, "a")) != NULL)
+    {
+        fprintf(m_LogFileP, "%s\n", msg.c_str());
+        fclose(m_LogFileP);
+    }
+    AddLogEntry(msg);
+}
+
+/**
+ * @brief Adds a message to the log file and displays a message if there is an
+ * error writing to the file.
+ * 
+ * @param logMessage Message to add to the log file.
+ * 
+*/
+void SortRoutines::AddLogEntry(const string msg)
+{
+    #ifdef _DEBUG
+    if ((m_LogFileP = fopen (LOGFILE, "a")) != NULL)
+    {
+        fprintf(m_LogFileP, "%s\n", msg.c_str());
+        fclose(m_LogFileP);
+    }
+    #endif
 }
 
 /**
@@ -272,14 +294,12 @@ bool SortRoutines::InitTempFiles(int startFileN)
     {
         sprintf(m_aSrtFlArr[x]->name, SRTFILE, x);
 
-        //filePathName = pGedWiseFrame->GetWorkDir() + m_aSrtFlArr[x]->name;
         filePathName = m_aSrtFlArr[x]->name;
 
         if (!(m_aSrtFlArr[x]->fp = fopen(filePathName.c_str(), "w+b")))
         {
-            string msg;
-            msg = printf(cErrFileOpen, "SR01", filePathName.c_str());
-            FileIOError(msg);
+            sprintf(msg_buf, cErrFileOpen, "SR01", filePathName.c_str());   
+            FileIOError(msg_buf);
             return false;
         }
     }
@@ -322,20 +342,16 @@ void SortRoutines::DeleteSortFiles(void)
 bool SortRoutines::TermTmpFiles(void)
 {
     string filePathName;
-    string msg;
     int lastPos = m_iSrtFlArrSz - 1; // do not erase last array item
     uint i = 0;
-
-    //AddLogEntry(_T("S-"), FALSE); // track number of times sort files created
 
     // Close the last sort file (as it will be renamed)
     if (m_aSrtFlArr[lastPos]->fp)
     {
         if (fclose(m_aSrtFlArr[lastPos]->fp))
         {
-            msg = printf(cErrFileClose, "SR02a", m_aSrtFlArr[lastPos]->name);
-            //AddLogEntry(msg);
-            cout << msg;
+            sprintf(msg_buf, cErrFileClose, "SR02a", m_aSrtFlArr[lastPos]->name);
+            AddLogEntry(msg_buf);
             assert(false);
             // this should never happen, but don't make it fatal error for now
         }
@@ -350,14 +366,13 @@ bool SortRoutines::TermTmpFiles(void)
 
     while (rename(filePathName.c_str(), m_sHoldFile.c_str()))
     {
-        msg = printf(cTryRename, "SR02b");
-        cout << msg;
-        //AddLogEntry(msg);
+        sprintf(msg_buf, cTryRename, "SR02b");
+        AddLogEntry(msg_buf);
 
         if (i > 5)
         {
-            msg = printf(cErrFileRen, "SR02c", filePathName.c_str());
-            FileIOError(msg);
+            sprintf(msg_buf, cErrFileRen, "SR02c", filePathName.c_str());
+            FileIOError(msg_buf);
             return false;
         }
         i++;
@@ -392,9 +407,8 @@ bool SortRoutines::RewindF(const int pos)
         }
         else
         {
-            string msg;
-            msg = printf(cErrFileRead, "SR05a", m_aSrtFlArr[pos]->name);
-            FileIOError(msg);
+            sprintf(msg_buf, cErrFileRead, "SR05a", m_aSrtFlArr[pos]->name);
+            FileIOError(msg_buf);
             return false;
         }
     }
@@ -626,24 +640,11 @@ bool SortRoutines::AddToBuffer(int pos, int *totBufSz)
                 }
                 else
                 {
-                    string msg;
-                    msg = printf(cErrFileRead, "SR03a", "Input");
-                    FileIOError(msg);
+                    sprintf(msg_buf, cErrFileRead, "SR03a", "Input");
+                    FileIOError(msg_buf);
                     return false;
                 }
             }
-
-#ifdef _DEBUG
-            //if ((m_iLineTot & PROG_DIV) == 0)
-            //    UpdateCnt++;
-#endif
-
-            //if ((m_iLineTot & PROG_DIV) == 0)
-            //{
-            //    pGedWiseFrame->CheckStatus ();
-            //    if (pGedWiseFrame->Canceled ())
-            //        return FALSE;
-            //}
 
             // Get the key for current record.
             GetKey(m_aBufArr[x]);
@@ -689,9 +690,8 @@ bool SortRoutines::AddToBuffer(int pos, int *totBufSz)
             }
             else
             {
-                string msg;
-                msg = printf(cErrFileRead, "SR03b", "Input");
-                FileIOError(msg);
+                sprintf(msg_buf, cErrFileRead, "SR03b", "Input");
+                FileIOError(msg_buf);
                 return false;
             }
         }
@@ -782,7 +782,6 @@ bool SortRoutines::MergeSort(void)
 {
     int k;
     int x;
-    string msg;
 
     // Prime the files and get first data line & key into m_aSrtFlArr array.
     for (x = 0; x < m_iSrtFileN; x++)
@@ -808,8 +807,8 @@ bool SortRoutines::MergeSort(void)
         if (fwprintf(m_aSrtFlArr[m_iSrtFlArrSz - 1]->fp, L"%S",
                      m_aSrtFlArr[k]->rec.dataLn) < 0)
         {
-            msg = printf(cErrFileWrite, "SR06a", m_aSrtFlArr[m_iSrtFlArrSz - 1]->name);
-            FileIOError(msg);
+            sprintf(msg_buf, cErrFileWrite, "SR06a", m_aSrtFlArr[m_iSrtFlArrSz - 1]->name);
+            FileIOError(msg_buf);
             return false;
         }
 
@@ -823,8 +822,8 @@ bool SortRoutines::MergeSort(void)
             }
             else
             {
-                msg = printf(cErrFileRead, "#SR06b", m_aSrtFlArr[k]->name);
-                FileIOError(msg);
+                sprintf(msg_buf, cErrFileRead, "#SR06b", m_aSrtFlArr[k]->name);
+                FileIOError(msg_buf);
                 return false;
             }
         }
@@ -859,7 +858,6 @@ bool SortRoutines::MakeRuns(void)
     uint i;
     BufRecType lowRec;   // lowest item >= highest item in current run
     bool notEndRun;      // signals the end of a run
-    string msg;          // error message
     string filePathName; // file path and name
 
     if (!InitTempFiles(0)) // initial all sort files
@@ -892,8 +890,8 @@ bool SortRoutines::MakeRuns(void)
                     if (fwprintf(m_aSrtFlArr[m_iSrtFileN]->fp, L"%S",
                                  m_aBufArr[pos]->dataLn) < 0)
                     {
-                        msg = printf(cErrFileWrite, "SR07a", m_aSrtFlArr[m_iSrtFileN]->name);
-                        FileIOError(msg);
+                        sprintf(msg_buf, cErrFileWrite, "SR07a", m_aSrtFlArr[m_iSrtFileN]->name);
+                        FileIOError(msg_buf);
                         return false;
                     }
 
@@ -940,14 +938,13 @@ bool SortRoutines::MakeRuns(void)
 
             while (rename(m_sHoldFile.c_str(), filePathName.c_str()))
             {
-                msg = printf(cTryRename, "SR07b");
-                cout << msg;
-                //AddLogEntry(msg);
+                sprintf(msg_buf, cTryRename, "SR07b");
+                AddLogEntry(msg_buf);
 
                 if (i > 5)
                 {
-                    msg = printf(cErrFileRen, "SR07c", m_sHoldFile.c_str());
-                    FileIOError(msg);
+                    sprintf(msg_buf, cErrFileRen, "SR07c", m_sHoldFile.c_str());
+                    FileIOError(msg_buf);
                     return false;
                 }
                 i++;
@@ -956,8 +953,8 @@ bool SortRoutines::MakeRuns(void)
             // Open _sort000.dat file.
             if (!(m_aSrtFlArr[0]->fp = fopen(filePathName.c_str(), "r+b")))
             {
-                msg = printf(cErrFileOpen, "SR07d", filePathName.c_str());
-                FileIOError(msg);
+                sprintf(msg_buf, cErrFileOpen, "SR07d", filePathName.c_str());
+                FileIOError(msg_buf);
                 return false;
             }
 
@@ -979,14 +976,13 @@ bool SortRoutines::SortFile()
 {
     wchar_t ch;
     uint lineCnt; // count lines to process in current file
-    string msg;
     string filePathName;
 
     // Make sure there was room to allocate the arrays we require.
     if (m_iBufArrSz < MIN_ARR_SZ || m_iSrtFlArrSz < MIN_ARR_SZ)
     {
-        msg = printf(cNoMemory, "SR08a");
-        FileIOError(msg);
+        sprintf(msg_buf, cNoMemory, "SR08a");
+        FileIOError(msg_buf);
         return false;
     }
 
@@ -999,8 +995,8 @@ bool SortRoutines::SortFile()
 
     if (!(m_fpInfile = fopen(filePathName.c_str(), "r+b")))
     {
-        msg = printf(cErrFileOpen, "SR08b", m_sUserFile.c_str()); //DBFiles[fileNo]->name);
-        FileIOError(msg);
+        sprintf(msg_buf, cErrFileOpen, "SR08b", m_sUserFile.c_str());
+        FileIOError(msg_buf);
         return false;
     }
 
@@ -1039,22 +1035,15 @@ bool SortRoutines::SortFile()
     if (!MakeRuns())
         return false; // error occurred
 
-        // Update the window progress bar.
-        //pGedWiseFrame->ProgressUpdateData();
-        //wxGetApp().Yield(TRUE);
-
 #ifdef _DEBUG
     OrgLineCnt = lineCnt;
     CheckSort();
 #endif
 
-    // Add log entries.
-    //AddLogEntry(STR_NUL, 2);
-
-    //msg = printf("Total Lines Read: = %d\n", m_iLineTot);
-    DBGPRINT("Total Lines Read: = %d", m_iLineTot);
-    //AddLogEntry(msg, 2);
-
+    sprintf(msg_buf, "Total Lines Read: = %d", m_iLineTot);
+    AddLogEntry(msg_buf);
+    DBGPRINT("%s", msg_buf);
+    
     // Close m_fpInfile file.
     fclose(m_fpInfile);
     m_fpInfile = NULL;
@@ -1074,10 +1063,10 @@ bool SortRoutines::SortFile()
         // FIRST, write header line.
         if (fwprintf(fPOutfile, L"%S", m_bFirstLn) < 0)
         {
-            msg = printf(cErrFileWrite, "SR09a", m_sOutfile.c_str());
+            sprintf(msg_buf, cErrFileWrite, "SR09a", m_sOutfile.c_str());
             fclose(fP);
             fclose(fPOutfile);
-            FileIOError(msg);
+            FileIOError(msg_buf);
             return false;
         }
 
@@ -1086,10 +1075,10 @@ bool SortRoutines::SortFile()
         {
             if (fwprintf(fPOutfile, L"%S", dataLn) < 0)
             {
-                msg = printf(cErrFileWrite, "SR09b", m_sOutfile.c_str());
+                sprintf(msg_buf, cErrFileWrite, "SR09b", m_sOutfile.c_str());
                 fclose(fP);
                 fclose(fPOutfile);
-                FileIOError(msg);
+                FileIOError(msg_buf);
                 return false;
             }
         }
@@ -1103,8 +1092,8 @@ bool SortRoutines::SortFile()
         // Rename _holder.dat file to m_fpInfile's file.
         if (rename(m_sHoldFile.c_str(), m_sOutfile.c_str()))
         {
-            msg = printf(cErrFileRen, "SR08c", m_sHoldFile.c_str());
-            FileIOError(msg);
+            sprintf(msg_buf, cErrFileRen, "SR08c", m_sHoldFile.c_str());
+            FileIOError(msg_buf);
             return false;
         }
     }
@@ -1190,7 +1179,7 @@ void SortRoutines::CheckSort(void)
 
     assert(chkLineCnt == OrgLineCnt);
 
-    DBGPRINT("%s", "DEBUG: Data was sorted correctly.");
+    DBGPRINT("%s", "Data was sorted correctly.");
 
     fclose(fP);
 }
