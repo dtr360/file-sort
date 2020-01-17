@@ -25,7 +25,7 @@
  * the lowest key in the tempfile array and write the associated record
  * into a temporary holder file; (11) read a new text string from the
  * sort file which previously had the lowest key and get the key from
- * that string; (12) repeat from	step 10 until all sort files have
+ * that string; (12) repeat from step 10 until all sort files have
  * been fully read; (13) erase the sort files and repeat from step 1
  * until the input file has been fully read.This program uses a
  * polyphase mergesort to sort a text file.
@@ -116,7 +116,7 @@ SortRoutines::~SortRoutines()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// MEMORY ALLOCATION SUBROUTINES											  //
+// MEMORY ALLOCATION SUBROUTINES                                              //
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -236,7 +236,7 @@ void SortRoutines::DeallocateSrtFlArr(int srtFlArrSz)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FILE MANAGEMENT SUBROUTINES												  //
+// FILE MANAGEMENT SUBROUTINES                                                  //
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -279,12 +279,12 @@ void SortRoutines::AddLogEntry(const string msg)
 
 /**
  * @brief Initialize merge files by creating up to m_iSrtFlArrSz temporary sort
- * 	files to be used to hold the runs of data read from the input file.
+ * files to be used to hold the runs of data read from the input file.
  * 
  * @param startFileN Starting sort file number to create.
- * @return true Successfully created the sort files.
- * @return false The sort files could not be created.
- */
+ * 
+ * @return true if it successfully created the sort files, else false if error.
+  */
 bool SortRoutines::InitTempFiles(int startFileN)
 {
     string filePathName;
@@ -336,8 +336,7 @@ void SortRoutines::DeleteSortFiles(void)
  * @brief Clean up temporary merge sort files. Create a temporary. Holder file
  *  to hold sorted data.
  * 
- * @return true The temporary sort files were successfully removed.
- * @return false The temporary sort files could not be removed.
+ * @return true if the sort files were successfully removed, else false if error.
  */
 bool SortRoutines::TermTmpFiles(void)
 {
@@ -389,8 +388,7 @@ bool SortRoutines::TermTmpFiles(void)
  * m_aSrtFlArr[pos].
  * 
  * @param pos The position within m_aSrtFlArr to read.
- * @return true The record was read successfully.
- * @return false Reached the end of the file.
+ * @return true if the record was read successfully, else false if error.
  */
 bool SortRoutines::RewindF(const int pos)
 {
@@ -421,18 +419,18 @@ bool SortRoutines::RewindF(const int pos)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FILE SORTING SUBROUTINES  												  //
+// FILE SORTING SUBROUTINES                                                    //
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @brief Performs a case-insensitve comparison of two records. 
- * The sort	key is assumed to be located at position 0 in each dataLn.
+ * The sort key is assumed to be located at position 0 in each dataLn.
  * The key ends at the first tab encountered in the dataLn.
  * 
  * @param rec1 The first record to compare.
  * @param rec2 The second record to compare.
  * 
- * @return int This will be < 0	if rec1 less than rec2, = 0 rec1 if identical
+ * @return int This will be < 0 if rec1 less than rec2, = 0 rec1 if identical
  * to rec2, or > 0 if rec1 greater than rec2
  */
 int SortRoutines::RecCmp(BufRecType *rec1, BufRecType *rec2)
@@ -711,18 +709,6 @@ bool SortRoutines::AddToBuffer(int pos, int *totBufSz)
         SortListIncr(*totBufSz, pos);
     } // else
 
-    //#ifdef _DEBUG
-    /*wstring strHld;
-     
-     for (int z = 0; z < *totBufSz; z++)
-     {
-     strHld += *m_aBufArr[z]->key;
-     strHld += CRLF;
-     }
-     cout << strHld
-     //wxMessageBox (strHld); */
-    //#endif
-
     return true; // if we reached here then we are not at end of input file.
 }
 
@@ -838,14 +824,15 @@ bool SortRoutines::MergeSort(void)
 }
 
 /**
- * @brief Make runs using replacement selection: Read up to MAX_ARR_SZ lines
- * of a text file into a buffer array, where each element of the array 
- * consists of the text string and an integer key that is copied from the
- * text string; (3) sort the array by the key;	(4) find the lowest key in
+ * @brief Make runs using replacement selection.
+ * Methodology: Read up to MAX_ARR_SZ lines of a text file into a
+ * buffer array, where each element of the array consists of the
+ * text string and an integer key that is copied from the text string;
+ * (3) sort the array by the key; (4) find the lowest key in
  *  the buffer that is greater than the last key read, and copy the text
  * string associated with that key from the buffer to a temporary sort file; 
- * (5) read in	one new line of text into the buffer and resort the buffer;
- * (7) repeat from step 3 until	there are no more keys left that are greater
+ * (5) read in one new line of text into the buffer and resort the buffer;
+ * (7) repeat from step 3 until there are no more keys left that are greater
  * than the last key read; (8) repeat from step 2 until he last sort file
  * has been filled.
  * 
@@ -1069,8 +1056,8 @@ bool SortRoutines::SortFile()
             FileIOError(msg_buf);
             return false;
         }
-
-        // SECOND, write all lines from m_sHoldFile.
+    
+           //    SECOND,    write all lines from m_sHoldFile.
         while (fgetws(dataLn, BUFFER_SZ, fP))
         {
             if (fwprintf(fPOutfile, L"%S", dataLn) < 0)
