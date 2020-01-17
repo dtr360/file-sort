@@ -1,11 +1,13 @@
-////////////////////////////////////////////////////////////////////////////////
-// PROGRAM:			Sorter 1.0
-//
-// FILE:			sortroutines.h
-//
-// DESCRIPTION:		Header file for sortroutines.cpp.
-////////////////////////////////////////////////////////////////////////////////
-
+/**
+ * @file sortroutines.h
+ * @author Daniel Rencricca
+ * @brief  Header file for sortroutines.cpp
+ * @version 1.1
+ * @date 2015-12-22
+ * 
+ * @copyright Copyright (c) 2015
+ * 
+ */
 #ifndef _SORT_ROUTINES_H_
 #define _SORT_ROUTINES_H_
 
@@ -28,10 +30,7 @@ const char cNoMemory[]		= "Error #%s insufficient memory for array.\n";
 
 #define SRTFILE				"_sort%03d.dat"	// Temporary sort file name
 #define HLDFILE				"_holder.dat" // Temp file for sorted data
-
-
 #define WORK_DIR            ""
-
 
 // Note the number of sort files makes the biggest difference in sorting time.
 // Increasing the BUF_ARR_SZ seems to slow down the sort time signficantly.
@@ -39,9 +38,6 @@ const char cNoMemory[]		= "Error #%s insufficient memory for array.\n";
 #define BUF_ARR_SZ		24	// max number of elements for buffer array
 #define MIN_ARR_SZ		3	// minimum size of m_aSrtFlArr & m_aBufArr arrrays
 #define FNAME_SZ		16	// maximum size of a file name (eg "_sort000.dat")
-
-
-//typedef wchar_t DataLineType[BUFFER_SZ+1]; // a line of data read from input file.
 
 typedef struct // holds line of data and its sort keys
 {
@@ -83,14 +79,15 @@ protected:
 	void		DeallocateSrtFlArr(int srtFlArrSz);
 	void		DeleteSortFiles(void);
 	void		FileIOError(string errMsg);
+	void		AddLogEntry(const string msg);
 	bool		FindLowest(int* pos, BufRecType* holdRec, uint totBufSz);
 	void		GetKey(BufRecType* rec);
 	bool		InitTempFiles(int startFileN);
 	bool		MakeRuns(void);
 	bool		MergeSort(void);
-    int         RecCmp(BufRecType* rec1, BufRecType* rec2);
+    	int         	RecCmp(BufRecType* rec1, BufRecType* rec2);
 	bool		RewindF(const int pos);
-    void        ShowProgress(bool setCnt, uint count);
+    	void        	ShowProgress(bool setCnt, uint count);
 	void		SortList(int totBufSz);
 	void		SortListIncr(const int totBufSz, int pos);
 	bool		TermTmpFiles(void);
@@ -99,26 +96,26 @@ protected:
 	void	CheckSort(void); // checks files are sorted correctly
 	#endif
 
-	//GedWiseFrame*	pGedWiseFrame;
-
 	BufRecType**	m_aBufArr;			// buffer of text lines to be sorted
 	SrtFlRecType**	m_aSrtFlArr;		// sort file array
-	int				m_iBufArrSz;		// holds actual size of m_Buffer array
-	int				m_iSrtFlArrSz;		// holds actual size of buffer array
-	uint			m_iLineTot;			// counter for total lines in infile
-	uint			m_iTotInFiles;		// count of total sort files
-	int				m_iSrtFileN;		// current sort file num being processed
-    string          m_sOutfile;         // name of output file
-	FILE*			m_fpInfile;			// input file containing unsorted text
+	int		m_iBufArrSz;		// holds actual size of m_Buffer array
+	int		m_iSrtFlArrSz;		// holds actual size of buffer array
+	uint		m_iLineTot;			// counter for total lines in infile
+	uint		m_iTotInFiles;		// count of total sort files
+	int		m_iSrtFileN;		// current sort file num being processed
+    	string       	m_sOutfile;         // name of output file
+	FILE*		m_fpInfile;			// input file containing unsorted text
 	string          m_sHoldFile;		// name of the temporary Holder File
-    string          m_sUserFile;        // file to be sorted
-    bool            m_bSkipFirstLn;     // skip first line of data file (header)
-    wchar_t         m_bFirstLn[BUFFER_SZ+1]; // first line of data file
-    float           m_fProgress;
-    bool            m_bUsingQuotes;     // flag file has quotes between fields
-    uint            m_iSortCol1;
-    uint            m_iSortCol2;
-    uint            m_iSortCol3;
+	string          m_sUserFile;        // file to be sorted
+    	bool            m_bSkipFirstLn;     // skip first line of data file (header)
+    	wchar_t         m_bFirstLn[BUFFER_SZ+1]; // first line of data file
+    	float           m_fProgress;
+    	bool            m_bUsingQuotes;     // flag file has quotes between fields
+    	uint            m_iSortCol1;
+    	uint            m_iSortCol2;
+    	uint            m_iSortCol3;
+	FILE*		m_LogFileP;			// pointer to the log file
+	char		msg_buf[100];		// for error messages
 };
 
 #endif //SORT_ROUTINES_H_
