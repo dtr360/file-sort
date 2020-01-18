@@ -1,18 +1,24 @@
-//
-//  main.cpp
-//  Sorter
-//
-//  Created by Daniel Rencricca on 12/22/15.
-//  Copyright © 2015 Daniel Rencricca. All rights reserved.
-//
-//  To inlcude arguments go to Product > Scheme > Edit Scheme > Arguments
+/**
+ * @file main.cpp
+ * @author Daniel Rencricca
+ * @brief Sorter program
+ * @version 1.1
+ * @date 2015-12-22
+ * 
+ * @copyright Copyright (c) 2015
+ * 
+ */
 
 #include "sortroutines.cpp"
 #include <string>
 #include <unistd.h> // for getcwd function
 
-
-//#include <iostream> do not include this else link errors
+/**
+ * Example to run on mac: ./sorter -i ./data/us-500.csv -o ./data/us-500.out -c1 1 -c2 2
+ * 
+ * Note that it must have the path "./" in front of the name when run in 
+ * the terminal, or else it will complain command not found.
+ */
 
 using namespace std;
 
@@ -20,7 +26,8 @@ int main(int argc, const char * argv[]) {
     if (argc < 1) { // Check the value of argc. If not enough parameters have been passed, inform user and exit.
         
         // inform the user of how to use the program
-        std::cout << "Usage is -i <infile> -o <outfile> -c1 <sort column 1> -c2 <sort column 2> -c3 <sort column 3>\n";         std::cin.get();
+        std::cout << "Usage is -i <infile> -o <outfile> -c1 <sort column 1> -c2 <sort column 2> -c3 <sort column 3>\n";
+        std::cin.get();
         exit(0);
     }
     else // we got enough parameters...
@@ -91,4 +98,3 @@ int main(int argc, const char * argv[]) {
     }
     return 0;
 }
-
